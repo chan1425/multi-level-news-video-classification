@@ -1,1 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>Multi-Level News Video Classification</title>
+
+    <meta
+        name="description"
+        content="Research project on metadata-assisted multi-label classification of news videos using visual and metadata-based approaches."
+    >
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                         Roboto, Helvetica, Arial, sans-serif;
+            background: #080b12;
+            color: #e8ecf4;
+            line-height: 1.7;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .container {
+            width: min(1120px, 90%);
+            margin: auto;
+        }
+
+        /* ---------------- NAVBAR ---------------- */
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(16px);
+            background: rgba(8, 11, 18, 0.82);
+            border-bottom: 1px solid #1d2432;
+        }
+
+        .nav-inner {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            color: #7dd3fc;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            font-size: 14px;
+            color: #aeb8ca;
+        }
+
+        .nav-links a:hover {
+            color: #ffffff;
+        }
+
+        /* ---------------- HERO ---------------- */
+
+        .hero {
+            min-height: 88vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: #2563eb;
+            opacity: 0.12;
+            filter: blur(130px);
+            border-radius: 50%;
+            top: -150px;
+            right: -100px;
+        }
+
+        .hero-content {
+            max-width: 850px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 7px 13px;
+            border: 1px solid #263247;
+            border-radius: 999px;
+            color: #8edcff;
+            font-size: 13px;
+            margin-bottom: 22px;
+            background: #0c111b;
+        }
+
+        h1 {
+            font-size: clamp(42px, 7vw, 76px);
+            line-height: 1.02;
+            letter-spacing: -3px;
+            margin-bottom: 25px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(
+                90deg,
+                #ffffff,
+                #8edcff,
+                #a78bfa
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: #aeb8ca;
+            max-width: 760px;
+            font-size: 18px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 14px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: 1px solid #2b3547;
+            background: #111827;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            border-color: #6b7c99;
+        }
+
+        .button.primary {
+            background: #e8f7ff;
+            color: #081019;
+            border-color: transparent;
+            font-weight: 700;
+        }
+
+        /* ---------------- SECTIONS ---------------- */
+
+        section {
+            padding: 100px 0;
+            border-top: 1px solid #161d29;
+        }
+
+        .section-label {
+            color: #7dd3fc;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        h2 {
+            font-size: clamp(30px, 5vw, 48px);
+            letter-spacing: -1.5px;
+            margin-bottom: 18px;
+        }
+
+        .section-intro {
+            color: #9da9bc;
+            max-width: 760px;
+            margin-bottom: 45px;
+        }
+
+        /* ---------------- CARDS ---------------- */
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .card {
+            background: #0d121c;
+            border: 1px solid #202a3a;
+            border-radius: 16px;
+            padding: 25px;
+            transition: 0.25s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: #394962;
+        }
+
+        .card h3 {
+            margin-bottom: 9px;
+        }
+
+        .card p {
+            color: #98a4b7;
+            font-size: 14px;
+        }
+
+        /* ---------------- TARGETS ---------------- */
+
+        .targets {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .target {
+            text-align: center;
+            padding: 22px 14px;
+        }
+
+        .target-number {
+            font-size: 28px;
+            font-weight: 800;
+            color: #8edcff;
+            margin-bottom: 7px;
+        }
+
+        .target p {
+            font-size: 13px;
+        }
+
+        /* ---------------- PIPELINES ---------------- */
+
+        .pipeline-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .pipeline-card {
+            background: #0c111a;
+            border: 1px solid #222d3f;
+            border-radius: 18px;
+            padding: 30px;
+        }
+
+        .pipeline-card.main {
+            border-color: #31577b;
+        }
+
+        .pipeline-card.experimental {
+            border-color: #403d62;
+        }
+
+        .pipeline-badge {
+            display: inline-block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.4px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: #111827;
+            color: #9edfff;
+            margin-bottom: 17px;
+        }
+
+        .pipeline-card.experimental .pipeline-badge {
+            color: #c4b5fd;
+        }
+
+        .pipeline-steps {
+            margin-top: 25px;
+        }
+
+        .pipeline-step {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 13px 0;
+            border-bottom: 1px solid #1a2230;
+            font-size: 14px;
+        }
+
+        .pipeline-step:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            width: 27px;
+            height: 27px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: #172235;
+            color: #8edcff;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        /* ---------------- METHODOLOGY ---------------- */
+
+        .flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .flow-box {
+            background: #101722;
+            border: 1px solid #29364a;
+            padding: 15px 18px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 145px;
+            font-size: 13px;
+        }
+
+        .arrow {
+            color: #63728a;
+            font-size: 22px;
+        }
+
+        /* ---------------- STATS ---------------- */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 35px;
+        }
+
+        .stat {
+            background: #0d121c;
+            border: 1px solid #202a3a;
+            border-radius: 15px;
+            padding: 24px;
+        }
+
+        .stat-value {
+            font-size: 34px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .stat-label {
+            color: #8f9caf;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        /* ---------------- COMPARISON ---------------- */
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            background: #0d121c;
+            border: 1px solid #202a3a;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 16px;
+            border-bottom: 1px solid #1d2635;
+            font-size: 14px;
+        }
+
+        th {
+            color: #8edcff;
+            font-weight: 600;
+        }
+
+        td {
+            color: #aeb8ca;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ---------------- VIDEO ---------------- */
+
+        .video-container {
+            background: #0d121c;
+            border: 1px solid #202a3a;
+            border-radius: 18px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .video-placeholder {
+            aspect-ratio: 16 / 9;
+            background: #070a10;
+            border: 1px dashed #344158;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: #8290a5;
+            padding: 30px;
+        }
+
+        .video-placeholder strong {
+            display: block;
+            color: #dce5f3;
+            margin-bottom: 8px;
+        }
+
+        /* ---------------- FUTURE WORK ---------------- */
+
+        .future-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .future-item {
+            padding: 17px;
+            background: #0d121c;
+            border: 1px solid #202a3a;
+            border-radius: 12px;
+            color: #aeb8ca;
+            font-size: 14px;
+        }
+
+        .future-item::before {
+            content: "→";
+            color: #8edcff;
+            margin-right: 9px;
+        }
+
+        /* ---------------- FOOTER ---------------- */
+
+        footer {
+            padding: 50px 0;
+            border-top: 1px solid #161d29;
+            color: #718096;
+            font-size: 13px;
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* ---------------- RESPONSIVE ---------------- */
+
+        @media (max-width: 900px) {
+
+            .grid,
+            .pipeline-grid,
+            .future-list {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .targets {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .grid,
+            .pipeline-grid,
+            .future-list,
+            .targets,
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                letter-spacing: -2px;
+            }
+
+            section {
+                padding: 70px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ================= NAVIGATION ================= -->
+
+<nav>
+    <div class="container nav-inner">
+
+        <div class="logo">
+            News<span>Video</span> Classification
+        </div>
+
+        <div class="nav-links">
+            <a href="#overview">Overview</a>
+            <a href="#pipelines">Pipelines</a>
+            <a href="#results">Results</a>
+            <a href="#video">Demo</a>
+            <a href="#future">Future Work</a>
+        </div>
+
+    </div>
+</nav>
+
+
+<!-- ================= HERO ================= -->
+
+<header class="hero">
+    <div class="container hero-content">
+
+        <div class="eyebrow">
+            Research Internship Project · 2026
+        </div>
+
+        <h1>
+            Multi-Level
+            <span class="gradient-text">
+                News Video Classification
+            </span>
+        </h1>
+
+        <p>
+            A multi-label classification framework for analysing news videos
+            across content format, source type, primary language, geography,
+            and production attributes using complementary metadata and visual
+            approaches.
+        </p>
+
+        <div class="hero-buttons">
+
+            <a class="button primary"
+               href="visual_pipeline.ipynb">
+                View Visual Pipeline
+            </a>
+
+            <a class="button"
+               href="metadata_pipeline.ipynb">
+                Experimental Metadata Pipeline
+            </a>
+
+        </div>
+
+    </div>
+</header>
+
+
+<!-- ================= OVERVIEW ================= -->
+
+<section id="overview">
+
+    <div class="container">
+
+        <div class="section-label">
+            01 · Project
+        </div>
+
+        <h2>Understanding news videos beyond a single label.</h2>
+
+        <p class="section-intro">
+            The project investigates how different information sources can be
+            used to classify news videos across multiple semantic and
+            production-level attributes. The work began with a metadata-based
+            proof of concept and progressed to a visual classification
+            pipeline using representative video keyframes and pretrained
+            visual representations.
+        </p>
+
+
+        <div class="grid">
+
+            <div class="card">
+                <h3>Multi-Label Classification</h3>
+                <p>
+                    Predicts five target attributes rather than reducing a
+                    news video to a single category.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Visual Understanding</h3>
+                <p>
+                    Uses representative keyframes and DINOv2 visual
+                    embeddings to obtain video-level representations.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Metadata Baseline</h3>
+                <p>
+                    Explores YouTube metadata, TF-IDF features and classical
+                    machine-learning models as an experimental baseline.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= TARGETS ================= -->
+
+<section>
+
+    <div class="container">
+
+        <div class="section-label">
+            Classification Targets
+        </div>
+
+        <h2>Five dimensions of a news video.</h2>
+
+        <div class="grid targets">
+
+            <div class="card target">
+                <div class="target-number">01</div>
+                <h3>Production</h3>
+                <p>Production characteristics</p>
+            </div>
+
+            <div class="card target">
+                <div class="target-number">02</div>
+                <h3>Source Type</h3>
+                <p>Nature of the news source</p>
+            </div>
+
+            <div class="card target">
+                <div class="target-number">03</div>
+                <h3>Language</h3>
+                <p>Primary language</p>
+            </div>
+
+            <div class="card target">
+                <div class="target-number">04</div>
+                <h3>Geography</h3>
+                <p>Geographical context</p>
+            </div>
+
+            <div class="card target">
+                <div class="target-number">05</div>
+                <h3>Content Format</h3>
+                <p>Format of the news content</p>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= PIPELINES ================= -->
+
+<section id="pipelines">
+
+    <div class="container">
+
+        <div class="section-label">
+            02 · Methodology
+        </div>
+
+        <h2>Two complementary approaches.</h2>
+
+        <p class="section-intro">
+            The metadata and visual approaches are currently maintained as
+            separate pipelines. They use different inputs and processing
+            paths, while providing complementary information for the overall
+            research direction.
+        </p>
+
+
+        <div class="pipeline-grid">
+
+            <!-- VISUAL -->
+
+            <div class="pipeline-card main">
+
+                <div class="pipeline-badge">
+                    Main Pipeline
+                </div>
+
+                <h3>Visual Classification Pipeline</h3>
+
+                <p>
+                    Processes locally stored video clips to obtain
+                    representative visual representations and classify the
+                    five target attributes.
+                </p>
+
+                <div class="pipeline-steps">
+
+                    <div class="pipeline-step">
+                        <div class="step-number">1</div>
+                        Local MP4 video
+                    </div>
+
+                    <div class="pipeline-step">
+                        <div class="step-number">2</div>
+                        Shot segmentation
+                    </div>
+
+                    <div class="pipeline-step">
+                        <div class="step-number">3</div>
+                        Representative keyframes
+                    </div>
+
+                    <div class="pipeline-step">
+                        <div class="step-number">4</div>
+                        DINOv2-Small feature extraction
+                    </div>
+
+                    <div class="pipeline-step">
+                        <div class="step-number">5</div>
+                        Video-level representation
+                    </div>
+
+                    <div class="pipeline-step">
+                        <div class="step-number">6</div>
+                        Five-label classification
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- METADATA -->
+
+            <div class="pipeline-card experimental">
+
+                <div class="pipeline-badge">
+                    Experimental / Baseline
+                </div>
+
+                <h3>Metadata Classification Pipeline</h3>
+
+                <p>
+                    Uses YouTube video information as a separate experimental
+                    source of features for classification.
+                </p>
+
+                <div class="pipeline-steps">
+
+                    <div class="pipeline-step">
+                        <div class="step-number">1</div>
+                        YouTube video link
+                    </div>
+
+                    <div class="pipeline-step">
+                        <div class="step-number">2</div>
+                        YouTube Data API v3
+                    </div>
+
+                    <div class="pipeline-step">
+                        <div class="step-number">3</div>
+                        Metadata extraction
+                    </div>
+
+                    <div class="pipeline-step">
+                        <div class="step-number">4</div>
+                        Text preprocessing
+                    </div>
+
+                    <div class="pipeline-step">
+                        <div class="step-number">5</div>
+                        TF-IDF feature extraction
+                    </div>
+
+                    <div class="pipeline-step">
+                        <div class="step-number">6</div>
+                        Classical ML classification
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= VISUAL FLOW ================= -->
+
+<section>
+
+    <div class="container">
+
+        <div class="section-label">
+            Visual Pipeline
+        </div>
+
+        <h2>From video frames to semantic attributes.</h2>
+
+        <p class="section-intro">
+            The final visual approach uses shot segmentation followed by
+            representative keyframe extraction and DINOv2 feature extraction.
+            Separate classifiers are trained for each target attribute.
+        </p>
+
+
+        <div class="flow">
+
+            <div class="flow-box">
+                Local<br>
+                Video Clip
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="flow-box">
+                Shot<br>
+                Segmentation
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="flow-box">
+                Representative<br>
+                Keyframes
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="flow-box">
+                DINOv2<br>
+                Features
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="flow-box">
+                Five<br>
+                Classifiers
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= RESULTS ================= -->
+
+<section id="results">
+
+    <div class="container">
+
+        <div class="section-label">
+            03 · Results
+        </div>
+
+        <h2>Current project status.</h2>
+
+        <p class="section-intro">
+            The visual pipeline was completed and tested on previously unseen
+            news videos. The metadata approach was developed as an initial
+            proof of concept and experimental baseline.
+        </p>
+
+
+        <div class="stats">
+
+            <div class="stat">
+                <div class="stat-value">~150</div>
+                <div class="stat-label">
+                    Annotated videos
+                </div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-value">146</div>
+                <div class="stat-label">
+                    Available video clips
+                </div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-value">384</div>
+                <div class="stat-label">
+                    DINOv2 feature dimensions
+                </div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-value">5</div>
+                <div class="stat-label">
+                    Separate visual classifiers
+                </div>
+            </div>
+
+        </div>
+
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Visual Backbone</th>
+                    <th>Parameters</th>
+                    <th>GFLOPs</th>
+                    <th>Feature Dimension</th>
+                    <th>Inference Time</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr>
+                    <td>DINOv2-Small</td>
+                    <td>22.06M</td>
+                    <td>5.53</td>
+                    <td>384</td>
+                    <td>9.93 ms/image</td>
+                </tr>
+
+                <tr>
+                    <td>MobileNetV3-Small</td>
+                    <td>0.93M</td>
+                    <td>0.06</td>
+                    <td>576</td>
+                    <td>5.10 ms/image</td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+        <p class="section-intro" style="margin-top:25px;">
+            DINOv2-Small was selected as the final visual backbone because it
+            provided a richer pretrained visual representation for the
+            project's semantic video understanding task, while
+            MobileNetV3-Small provided a lighter and faster alternative.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ================= METADATA RESULTS ================= -->
+
+<section>
+
+    <div class="container">
+
+        <div class="section-label">
+            Metadata Baseline
+        </div>
+
+        <h2>What the metadata experiments showed.</h2>
+
+        <p class="section-intro">
+            The metadata pipeline was initially evaluated as a proof of
+            concept. YouTube metadata was transformed using TF-IDF and
+            classical machine-learning models were investigated.
+        </p>
+
+
+        <div class="grid">
+
+            <div class="card">
+                <h3>Initial Geography Baseline</h3>
+                <p>
+                    TF-IDF with Logistic Regression achieved 60% test
+                    accuracy, with a 0.44 macro F1-score and 0.53 weighted
+                    F1-score.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Dataset Expansion</h3>
+                <p>
+                    The annotated metadata dataset was expanded from 20 to
+                    50 videos during the baseline experimentation.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Key Limitation</h3>
+                <p>
+                    Severe class imbalance made fine-grained metadata-only
+                    classification difficult, particularly for less
+                    represented categories.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= DEMONSTRATION VIDEO ================= -->
+
+<section id="video">
+
+    <div class="container">
+
+        <div class="section-label">
+            04 · Demonstration
+        </div>
+
+        <h2>Visual pipeline demonstration.</h2>
+
+        <p class="section-intro">
+            A recorded walkthrough of the completed visual classification
+            pipeline, including preprocessing, visual feature extraction,
+            classification and inference on unseen videos.
+        </p>
+
+
+        <div class="video-container">
+
+            <!--
+                Replace the placeholder below after uploading your
+                demonstration video.
+
+                Example:
+
+                <video controls width="100%">
+                    <source src="assets/demo.mp4" type="video/mp4">
+                </video>
+            -->
+
+            <div class="video-placeholder">
+
+                <div>
+                    <strong>Demonstration Video</strong>
+
+                    The project demonstration video will be embedded here.
+
+                    <br><br>
+
+                    <small>
+                        Upload the final recording to the repository's
+                        assets directory and replace this placeholder.
+                    </small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= LIMITATIONS ================= -->
+
+<section>
+
+    <div class="container">
+
+        <div class="section-label">
+            Limitations
+        </div>
+
+        <h2>What the current system does not yet capture.</h2>
+
+        <p class="section-intro">
+            The current visual pipeline focuses on visual information.
+            Certain attributes, especially primary language, may require
+            information that cannot reliably be inferred from frames alone.
+        </p>
+
+
+        <div class="grid">
+
+            <div class="card">
+                <h3>Audio</h3>
+                <p>
+                    Audio and speech transcripts are not currently integrated
+                    into the visual pipeline.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>OCR</h3>
+                <p>
+                    On-screen text extraction has not yet been incorporated
+                    into the current system.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Class Imbalance</h3>
+                <p>
+                    Minority classes remain challenging because of limited
+                    examples in some categories.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= FUTURE WORK ================= -->
+
+<section id="future">
+
+    <div class="container">
+
+        <div class="section-label">
+            05 · Future Work
+        </div>
+
+        <h2>Towards multimodal news understanding.</h2>
+
+        <p class="section-intro">
+            The current pipelines provide complementary sources of
+            information. A future system can investigate their integration
+            with additional audio and textual signals.
+        </p>
+
+
+        <div class="future-list">
+
+            <div class="future-item">
+                Audio-based language identification and transcription
+            </div>
+
+            <div class="future-item">
+                OCR-based extraction of on-screen news text
+            </div>
+
+            <div class="future-item">
+                Fusion of metadata, visual and audio modalities
+            </div>
+
+            <div class="future-item">
+                Larger and more balanced datasets
+            </div>
+
+            <div class="future-item">
+                Improved handling of minority classes
+            </div>
+
+            <div class="future-item">
+                Hyperparameter tuning
+            </div>
+
+            <div class="future-item">
+                Confidence estimation and explainability
+            </div>
+
+            <div class="future-item">
+                Optional web-based demonstration interface
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= NOTEBOOKS ================= -->
+
+<section>
+
+    <div class="container">
+
+        <div class="section-label">
+            Project Artifacts
+        </div>
+
+        <h2>Explore the implementation.</h2>
+
+        <div class="grid">
+
+            <div class="card">
+
+                <h3>Visual Pipeline</h3>
+
+                <p>
+                    Complete DINOv2-based visual classification workflow,
+                    including preprocessing, feature extraction,
+                    classification and inference.
+                </p>
+
+                <br>
+
+                <a
+                    class="button"
+                    href="visual_pipeline.ipynb"
+                >
+                    Open Notebook →
+                </a>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>Metadata Pipeline</h3>
+
+                <p>
+                    Experimental metadata-based approach using YouTube
+                    information, TF-IDF features and classical ML models.
+                </p>
+
+                <br>
+
+                <a
+                    class="button"
+                    href="metadata_pipeline.ipynb"
+                >
+                    Open Notebook →
+                </a>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>Research Direction</h3>
+
+                <p>
+                    The long-term direction is a multimodal framework combining
+                    complementary visual, metadata and audio information.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer>
+
+    <div class="container footer-inner">
+
+        <div>
+            Multi-Level News Video Classification
+        </div>
+
+        <div>
+            Research Internship Project · 2026
+        </div>
+
+    </div>
+
+</footer>
+
+
+</body>
+</html>
