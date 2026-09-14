@@ -3,861 +3,528 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Multi-Level News Video Classification</title>
-<meta name="description" content="Research internship project on multi-level news video classification using complementary metadata and visual pipelines.">
-
+<meta name="description" content="Research showcase for Metadata-Assisted Multi-Label Classification of News Videos by Anwesha Choudhury.">
+<title>Multi-Level News Video Classification | Anwesha Choudhury</title>
 <style>
 :root{
-    --bg:#070a10;
-    --bg-soft:#0b1018;
-    --panel:#0d131e;
-    --panel-2:#101722;
-    --line:#202b3b;
-    --line-soft:#182130;
-    --text:#edf2fa;
-    --muted:#9aa8bc;
-    --muted-2:#718096;
-    --cyan:#7dd3fc;
-    --blue:#60a5fa;
-    --violet:#a78bfa;
-    --green:#86efac;
-    --max:1180px;
+  --bg:#070a12;--panel:#0d1220;--panel2:#111827;--text:#eef2ff;--muted:#9aa6bd;
+  --line:#202a3d;--accent:#7c8cff;--accent2:#52d6c5;--warm:#f4b860;--danger:#f07b91;
+  --max:1180px;--radius:22px;--shadow:0 20px 60px rgba(0,0,0,.25);
 }
-
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{
-    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-    background:
-      radial-gradient(circle at 82% 8%,rgba(96,165,250,.12),transparent 28rem),
-      radial-gradient(circle at 15% 30%,rgba(167,139,250,.07),transparent 25rem),
-      var(--bg);
-    color:var(--text);
-    line-height:1.7;
-}
+*{box-sizing:border-box;scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at 85% 0%,#18204a 0,transparent 32%),var(--bg);
+font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);line-height:1.65}
 a{color:inherit;text-decoration:none}
-.container{width:min(var(--max),90%);margin:auto}
-
-/* NAV */
-nav{
-    position:sticky;top:0;z-index:100;
-    background:rgba(7,10,16,.82);
-    backdrop-filter:blur(18px);
-    border-bottom:1px solid rgba(255,255,255,.07);
-}
-.nav-inner{
-    height:72px;display:flex;align-items:center;justify-content:space-between;gap:25px
-}
-.logo{font-weight:800;letter-spacing:-.5px;font-size:17px}
-.logo span{color:var(--cyan)}
-.nav-links{display:flex;gap:24px;color:#aeb9c9;font-size:13px}
-.nav-links a{transition:.2s}
-.nav-links a:hover{color:white}
-.nav-cta{
-    border:1px solid var(--line);padding:8px 13px;border-radius:9px;
-    color:var(--cyan);font-size:12px
-}
-
-/* GLOBAL */
-section{padding:105px 0;border-top:1px solid rgba(255,255,255,.055)}
-.section-label{
-    color:var(--cyan);font-size:11px;text-transform:uppercase;
-    letter-spacing:2.5px;margin-bottom:12px;font-weight:700
-}
-h1{font-size:clamp(45px,7vw,82px);line-height:1.01;letter-spacing:-4px;max-width:920px}
-h2{font-size:clamp(32px,5vw,54px);line-height:1.08;letter-spacing:-2.2px;margin-bottom:20px}
-h3{font-size:18px;line-height:1.25;margin-bottom:9px}
-p{color:var(--muted)}
-.section-intro{max-width:790px;margin-bottom:42px;font-size:16px}
-.gradient{
-    background:linear-gradient(90deg,#fff 8%,var(--cyan) 48%,var(--violet) 92%);
-    -webkit-background-clip:text;background-clip:text;color:transparent
-}
-.kicker{
-    display:inline-flex;align-items:center;gap:8px;
-    border:1px solid #263348;background:rgba(13,19,30,.75);
-    border-radius:999px;padding:7px 13px;color:var(--cyan);
-    font-size:12px;margin-bottom:24px
-}
-.kicker::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan)}
-
-.button{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:12px 18px;border-radius:10px;
-    border:1px solid #2a374b;background:#101722;
-    font-size:13px;font-weight:600;transition:.2s
-}
-.button:hover{transform:translateY(-2px);border-color:#52647d}
-.button.primary{background:#eaf7ff;color:#071018;border-color:transparent}
-.button.primary:hover{background:white}
-
-/* HERO */
-.hero{min-height:calc(100vh - 72px);display:flex;align-items:center;position:relative;overflow:hidden}
-.hero-grid{
-    display:grid;grid-template-columns:1.35fr .65fr;gap:65px;align-items:end
-}
-.hero-copy p{max-width:780px;font-size:18px;margin-top:27px}
-.hero-buttons{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
-.hero-side{padding-bottom:4px}
-.hero-note{
-    border-left:1px solid #314056;padding-left:20px;
-    color:#8f9db1;font-size:13px
-}
-.hero-note strong{display:block;color:#dbe5f2;margin-bottom:6px}
-.hero-orb{
-    position:absolute;width:460px;height:460px;border-radius:50%;
-    right:-220px;top:90px;
-    background:rgba(96,165,250,.08);filter:blur(80px);pointer-events:none
-}
-
-/* META / MENTORS */
-.identity-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;margin-top:28px}
-.identity-card,.card{
-    background:linear-gradient(145deg,rgba(15,22,34,.96),rgba(10,15,23,.96));
-    border:1px solid var(--line);border-radius:17px;padding:26px
-}
-.identity-card{display:flex;flex-direction:column;justify-content:space-between;min-height:170px}
-.identity-label{color:var(--muted-2);font-size:11px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:7px}
-.identity-name{font-size:19px;font-weight:700}
-.identity-sub{font-size:13px;color:var(--muted);margin-top:4px}
-.identity-list{display:grid;gap:16px}
-
-/* TARGETS */
-.targets{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-.target{padding:23px 18px;min-height:140px}
-.target-no{font-size:11px;color:var(--cyan);letter-spacing:1.5px;margin-bottom:20px}
-.target p{font-size:12px}
-
-/* ARCHITECTURE */
-.arch-shell{
-    margin-top:42px;padding:28px;
-    border:1px solid var(--line);border-radius:20px;
-    background:rgba(10,15,23,.8)
-}
-.arch-input{
-    width:220px;margin:0 auto 30px;text-align:center;
-    padding:16px;border:1px solid #3a4b64;border-radius:12px;
-    background:#101a28;font-weight:700
-}
-.arch-branches{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.arch-branch{
-    border:1px solid var(--line);border-radius:17px;padding:22px;
-    position:relative
-}
-.arch-branch.main{border-color:#31597d}
-.arch-branch.exp{border-color:#4a416d}
-.arch-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:17px}
-.badge{
-    font-size:10px;text-transform:uppercase;letter-spacing:1.3px;
-    padding:5px 8px;border-radius:999px;background:#111b29;color:var(--cyan)
-}
-.exp .badge{color:#c4b5fd}
-.arch-step{
-    display:flex;align-items:center;gap:12px;
-    padding:12px 0;border-bottom:1px solid var(--line-soft);font-size:13px
-}
-.arch-step:last-child{border-bottom:0}
-.arch-dot{
-    width:25px;height:25px;border-radius:50%;display:grid;place-items:center;
-    background:#152238;color:var(--cyan);font-size:10px;flex:none
-}
-.arch-connector{height:30px;width:1px;background:#34445a;margin:0 auto}
-.arch-output{
-    margin:26px auto 0;width:min(560px,100%);
-    padding:16px;text-align:center;border:1px solid #34445a;
-    border-radius:12px;background:#0f1723;font-weight:700
-}
-.arch-future{
-    margin-top:25px;text-align:center;color:#7f8da2;font-size:12px
-}
-.arch-future span{color:var(--violet)}
-
-/* LOGIC */
-.logic-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
-.logic-card{min-height:205px}
-.logic-tag{font-size:10px;color:var(--cyan);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px}
-.formula{
-    margin-top:18px;padding:15px 17px;border-radius:10px;
-    background:#080d15;border:1px solid var(--line);
-    color:#e8f2ff;font-family:Georgia,serif;font-size:17px
-}
-.logic-flow{margin-top:20px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-.mini-box{padding:8px 10px;border:1px solid #2b394d;border-radius:8px;background:#0b111b;font-size:11px}
-.mini-arrow{color:#5f718b}
-
-/* PIPELINES */
-.pipeline-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.pipeline{padding:29px;border-radius:19px;border:1px solid var(--line);background:#0b111a}
-.pipeline.main{border-color:#31597d}
-.pipeline.experimental{border-color:#463e67}
-.pipeline-title{display:flex;justify-content:space-between;align-items:flex-start;gap:15px}
-.pipeline-description{font-size:13px;margin:16px 0 18px}
-.steps{display:grid;gap:8px}
-.step{
-    display:flex;gap:11px;align-items:center;
-    padding:11px 12px;border-radius:9px;background:#0e1621;
-    border:1px solid #182335;font-size:12px;color:#b8c4d5
-}
-.step b{
-    width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
-    background:#17253a;color:var(--cyan);font-size:10px
-}
-
-/* DATASET */
-.dataset-layout{display:grid;grid-template-columns:.85fr 1.15fr;gap:20px}
-.dataset-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.dataset-stat{padding:23px;border:1px solid var(--line);border-radius:15px;background:#0c121c}
-.dataset-value{font-size:31px;font-weight:800}
-.dataset-label{font-size:11px;color:var(--muted-2);margin-top:2px}
-.sheet{
-    border:1px solid var(--line);border-radius:17px;overflow:hidden;background:#0c121c
-}
-.sheet-top{padding:17px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
-.sheet-title{font-weight:700;font-size:13px}
-.sheet-note{font-size:10px;color:var(--muted-2)}
-.sheet-table{width:100%;border-collapse:collapse}
-.sheet-table th,.sheet-table td{padding:13px 15px;border-bottom:1px solid var(--line-soft);text-align:left;font-size:11px}
-.sheet-table th{color:var(--cyan);font-weight:600}
-.sheet-table td{color:#9eabbf}
-.sheet-table tr:last-child td{border-bottom:0}
-
-/* RESULTS */
-.result-top{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:32px 0}
-.metric{padding:23px;border:1px solid var(--line);border-radius:15px;background:#0c121c}
-.metric-value{font-size:30px;font-weight:800}
-.metric-label{font-size:11px;color:var(--muted-2)}
-.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px}
-.result-table{width:100%;border-collapse:collapse;min-width:650px;background:#0c121c}
-.result-table th,.result-table td{padding:15px;border-bottom:1px solid var(--line-soft);text-align:left;font-size:12px}
-.result-table th{color:var(--cyan);font-weight:600}
-.result-table td{color:#aab6c8}
-.result-table tr:last-child td{border-bottom:0}
-.result-table .chosen td{color:#e9f4ff}
-
-/* CODE */
-.code-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.code-card{overflow:hidden;padding:0}
-.code-head{padding:20px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
-.code-label{font-size:10px;color:var(--cyan);text-transform:uppercase;letter-spacing:1.5px}
-pre{
-    margin:0;padding:22px;overflow:auto;background:#070b11;
-    color:#c6d2e1;font-size:11px;line-height:1.75
-}
-.code-comment{color:#728197}.code-key{color:#8edcff}.code-name{color:#c4b5fd}
-
-/* VIDEO */
-.video-box{
-    border:1px solid var(--line);border-radius:19px;padding:18px;
-    background:#0c121c
-}
-.video-frame{
-    aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#05080d;
-    border:1px dashed #34445a;display:grid;place-items:center
-}
-.video-placeholder{text-align:center;padding:30px}
-.play{
-    width:56px;height:56px;border-radius:50%;display:grid;place-items:center;
-    margin:0 auto 15px;background:#eaf7ff;color:#071018;font-size:20px
-}
-.video-placeholder strong{display:block;margin-bottom:5px}
-.video-placeholder p{font-size:12px}
-.video-note{font-size:11px;color:var(--muted-2);margin-top:13px;text-align:center}
-
-/* LIMITATIONS / FUTURE */
-.limit-grid,.future-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.limit-item,.future-item{padding:22px;border:1px solid var(--line);border-radius:15px;background:#0c121c}
-.item-index{font-size:10px;color:var(--cyan);letter-spacing:1.5px;margin-bottom:17px}
-.limit-item p,.future-item p{font-size:12px}
-.future-item{min-height:145px}
-
-/* REPO */
-.repo-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.tree{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;line-height:2;color:#aebbd0}
-.tree .folder{color:var(--cyan)} .tree .file{color:#c8d3e2}
-.artifact-links{display:grid;gap:10px;margin-top:18px}
-.artifact{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:13px 15px;border:1px solid var(--line);border-radius:10px;background:#0d141f;font-size:12px}
-.artifact span:last-child{color:var(--cyan)}
-
-/* FOOTER */
-footer{padding:55px 0;border-top:1px solid rgba(255,255,255,.06);color:#6f7d91;font-size:11px}
-.footer-inner{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
-
-/* RESPONSIVE */
-@media(max-width:950px){
-    .hero-grid,.identity-grid,.dataset-layout{grid-template-columns:1fr}
-    .targets{grid-template-columns:repeat(3,1fr)}
-    .result-top{grid-template-columns:repeat(2,1fr)}
-    .limit-grid,.future-grid{grid-template-columns:1fr 1fr}
-    .nav-links{display:none}
-}
-@media(max-width:650px){
-    section{padding:75px 0}
-    h1{letter-spacing:-2.5px}
-    .arch-branches,.pipeline-grid,.logic-grid,.code-grid,.repo-grid{grid-template-columns:1fr}
-    .targets,.limit-grid,.future-grid,.result-top{grid-template-columns:1fr}
-    .dataset-stats{grid-template-columns:1fr 1fr}
-    .arch-shell{padding:17px}
-}
+.container{width:min(var(--max),calc(100% - 40px));margin:auto}
+nav{position:sticky;top:0;z-index:20;background:rgba(7,10,18,.82);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.06)}
+.nav{height:68px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{font-weight:800;letter-spacing:-.02em}.brand span{color:var(--accent)}
+.navlinks{display:flex;gap:20px;font-size:.88rem;color:var(--muted);overflow:auto;white-space:nowrap}
+.navlinks a:hover{color:var(--text)}
+.hero{padding:100px 0 80px;border-bottom:1px solid var(--line)}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;border:1px solid #303b57;border-radius:999px;padding:7px 12px;color:#cbd4ea;font-size:.8rem;background:rgba(124,140,255,.06)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent2);box-shadow:0 0 16px var(--accent2)}
+h1{font-size:clamp(2.7rem,7vw,5.8rem);line-height:.98;letter-spacing:-.055em;max-width:950px;margin:24px 0}
+.hero p{font-size:1.08rem;color:var(--muted);max-width:780px}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:12px 17px;border-radius:12px;border:1px solid #303a52;background:#111827;font-weight:700;font-size:.9rem}
+.btn.primary{background:var(--text);color:#0a0d15;border-color:var(--text)}
+.btn:hover{transform:translateY(-1px);border-color:#5a6786}
+.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:52px}
+.meta-card{padding:18px;border:1px solid var(--line);background:rgba(13,18,32,.72);border-radius:16px}
+.meta-card b{display:block;font-size:1.25rem}.meta-card span{color:var(--muted);font-size:.8rem}
+section{padding:86px 0;border-bottom:1px solid var(--line)}
+.section-head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:34px}
+.kicker{color:var(--accent2);font-size:.76rem;text-transform:uppercase;letter-spacing:.16em;font-weight:800}
+h2{font-size:clamp(2rem,4vw,3.2rem);line-height:1.08;letter-spacing:-.04em;margin:8px 0 0}
+h3{margin:0 0 9px;font-size:1.15rem}.lead{color:var(--muted);max-width:760px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{background:linear-gradient(180deg,rgba(17,24,39,.94),rgba(10,14,25,.94));border:1px solid var(--line);border-radius:var(--radius);padding:25px;box-shadow:var(--shadow)}
+.card p{color:var(--muted);margin:7px 0 0}
+.pill{display:inline-block;border:1px solid #303b57;border-radius:999px;padding:5px 9px;color:#cbd4ea;font-size:.74rem;margin:4px 4px 0 0}
+.credits{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:14px}.credit strong{display:block;font-size:1.05rem}.credit small{color:var(--muted)}
+.targets{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.target{padding:18px;border:1px solid var(--line);border-radius:16px;background:#0c111d}.target .num{color:var(--accent);font-weight:800;font-size:.8rem}
+.arch{padding:24px;border:1px solid var(--line);border-radius:20px;background:#090e18;overflow:auto}
+.flow{display:flex;align-items:center;gap:10px;min-width:900px}.node{padding:16px 18px;border:1px solid #34405b;border-radius:14px;background:#111827;min-width:145px;text-align:center}.arrow{color:var(--accent);font-size:1.3rem}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:18px}.tag{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--warm);font-weight:800}
+.timeline{display:grid;gap:12px}.step{display:grid;grid-template-columns:85px 1fr;gap:18px;padding:16px 0;border-bottom:1px dashed #273147}.step:last-child{border-bottom:0}.step b{color:var(--accent)}
+.formula{font-family:"Times New Roman",serif;font-size:1.15rem;color:#f6f7ff;background:#080c15;border:1px solid #273149;border-radius:14px;padding:17px;overflow:auto}
+code{font-family:"SFMono-Regular",Consolas,monospace;color:#dce4ff}.code{background:#080c15;border:1px solid #273149;border-radius:16px;padding:18px;overflow:auto;font-size:.82rem;color:#cbd4ea}
+.chart-card{min-width:0}.chart-title{display:flex;justify-content:space-between;gap:15px;margin-bottom:18px}.legend{font-size:.75rem;color:var(--muted)}
+.bar-row{display:grid;grid-template-columns:145px 1fr 55px;gap:10px;align-items:center;margin:12px 0}.bar-label{font-size:.82rem;color:#c9d1e4}.bar{height:10px;background:#1b2435;border-radius:99px;overflow:hidden}.fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2))}.bar-value{text-align:right;font-size:.78rem;color:#cbd4ea}
+.compare{width:100%;border-collapse:collapse;font-size:.86rem}.compare th,.compare td{padding:12px;border-bottom:1px solid var(--line);text-align:left}.compare th{color:#9da9c2;font-weight:700}.compare td:not(:first-child){font-variant-numeric:tabular-nums}
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{padding:20px;border:1px solid var(--line);border-radius:17px;background:#0c111d}.metric strong{font-size:1.8rem;display:block}.metric span{color:var(--muted);font-size:.8rem}
+.note{border-left:3px solid var(--accent);padding:14px 18px;background:#0c111d;color:#bac4d9;border-radius:0 12px 12px 0}
+.warning{border-left-color:var(--warm)}
+.demo{aspect-ratio:16/9;border:1px solid #303b57;border-radius:20px;background:repeating-linear-gradient(45deg,#0b101b,#0b101b 10px,#0e1421 10px,#0e1421 20px);display:flex;align-items:center;justify-content:center;text-align:center;padding:30px}
+.demo-inner{max-width:550px}.play{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:#f1f4ff;color:#0a0d15;margin:0 auto 18px;font-size:1.3rem}
+.structure{display:grid;grid-template-columns:1fr 1fr;gap:18px}.tree{font-family:Consolas,monospace;color:#cdd6e9;background:#080c15;border:1px solid var(--line);padding:22px;border-radius:17px;white-space:pre;overflow:auto}
+footer{padding:55px 0;color:var(--muted)}.footerline{display:flex;justify-content:space-between;gap:20px;align-items:center}
+@media(max-width:850px){.meta,.targets{grid-template-columns:repeat(2,1fr)}.grid2,.split,.structure,.credits{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}.metric-grid{grid-template-columns:repeat(2,1fr)}.navlinks{display:none}.hero{padding-top:75px}.bar-row{grid-template-columns:110px 1fr 48px}.flow{min-width:760px}}
+@media(max-width:520px){.container{width:min(var(--max),calc(100% - 24px))}.meta,.targets,.metric-grid{grid-template-columns:1fr 1fr}section{padding:65px 0}.meta-card{padding:14px}.bar-row{grid-template-columns:90px 1fr 45px}.hero h1{font-size:3rem}}
 </style>
 </head>
-
 <body>
 
 <nav>
-<div class="container nav-inner">
-    <div class="logo">News<span>Video</span> Classification</div>
-    <div class="nav-links">
-        <a href="#introduction">Introduction</a>
-        <a href="#architecture">Architecture</a>
-        <a href="#dataset">Dataset</a>
-        <a href="#methodology">Methodology</a>
-        <a href="#results">Results</a>
-        <a href="#demo">Demo</a>
-        <a href="#future">Future Work</a>
-    </div>
-    <a class="nav-cta" href="https://github.com/chan1425/multi-level-news-video-classification" target="_blank">GitHub ↗</a>
+<div class="container nav">
+  <a class="brand" href="#top">News Video <span>Classification</span></a>
+  <div class="navlinks">
+    <a href="#overview">Overview</a><a href="#method">Methodology</a><a href="#dataset">Dataset</a>
+    <a href="#math">Math</a><a href="#results">Results</a><a href="#demo">Demo</a><a href="#resources">Resources</a>
+  </div>
 </div>
 </nav>
 
-<!-- 01 INTRODUCTION -->
-<header class="hero" id="introduction">
-<div class="hero-orb"></div>
-<div class="container hero-grid">
-    <div class="hero-copy">
-        <div class="kicker">E&amp;ICT Academy · Research Internship Project · 2026</div>
-        <h1>Multi-Level <span class="gradient">News Video Classification</span></h1>
-        <p>
-            A research project investigating multi-label classification of news
-            videos across content format, source type, primary language, geography,
-            and production attributes using complementary metadata and visual approaches.
-        </p>
-        <div class="hero-buttons">
-            <a class="button primary" href="#demo">▶ Watch Presentation</a>
-            <a class="button" href="#architecture">Explore Architecture ↓</a>
-        </div>
-    </div>
-
-    <div class="hero-side">
-        <div class="hero-note">
-            <strong>Project focus</strong>
-            Understanding news videos through multiple attributes rather than a
-            single category, with a visual pipeline as the main implemented approach
-            and a metadata pipeline as an experimental baseline.
-        </div>
-    </div>
+<main id="top">
+<section class="hero">
+<div class="container">
+  <div class="eyebrow"><span class="dot"></span> Research Internship Project · 2026</div>
+  <h1>Metadata-Assisted Multi-Label Classification of News Videos.</h1>
+  <p>
+    A research-oriented pipeline for classifying news videos across five semantic levels:
+    <b>Content Format, Source Type, Primary Language, Geography, and Production</b>.
+    The work studies two intentionally separate approaches — a metadata baseline and a visual
+    deep-feature pipeline — rather than combining them prematurely.
+  </p>
+  <div class="actions">
+    <a class="btn primary" href="https://colab.research.google.com/github/chan1425/multi-level-news-video-classification/blob/main/visual_pipeline.ipynb" target="_blank">↗ Visual Notebook</a>
+    <a class="btn" href="https://colab.research.google.com/github/chan1425/multi-level-news-video-classification/blob/main/metadata_pipeline.ipynb" target="_blank">↗ Metadata Notebook</a>
+    <a class="btn" href="https://github.com/chan1425/multi-level-news-video-classification" target="_blank">↗ GitHub</a>
+    <a class="btn" href="https://app.notion.com/p/Multi-Level-Classification-of-News-Videos-3853b3ac9999800a9ba9e86b68a75f4e" target="_blank">↗ Project Notion</a>
+  </div>
+  <div class="meta">
+    <div class="meta-card"><b>150</b><span>Annotated videos</span></div>
+    <div class="meta-card"><b>146</b><span>Visual feature records</span></div>
+    <div class="meta-card"><b>5</b><span>Classification targets</span></div>
+    <div class="meta-card"><b>2</b><span>Independent pipelines</span></div>
+  </div>
 </div>
-</header>
+</section>
+
+<section id="overview">
+<div class="container">
+<div class="section-head"><div><div class="kicker">01 · Overview</div><h2>What is the system trying to learn?</h2></div></div>
+<div class="grid2">
+  <div class="card">
+    <h3>The research question</h3>
+    <p>Can news videos be characterized at multiple semantic levels using information available from their online metadata and their visual content?</p>
+    <p>Rather than treating a news video as a single class, the project predicts five related but independently modelled attributes.</p>
+  </div>
+  <div class="card">
+    <h3>Why two approaches?</h3>
+    <p>The metadata experiment directly consumes YouTube URLs and textual/metadata signals. The final visual pipeline consumes locally stored MP4 clips. Their inputs and processing assumptions are different, so they remain separate in this implementation.</p>
+    <div class="note" style="margin-top:15px">Future multimodal fusion is deliberately left as future work.</div>
+  </div>
+</div>
+<div class="credits" style="margin-top:18px">
+  <div class="card credit"><strong>Faculty Advisor</strong><small>Prof. Prithwijit Guha</small></div>
+  <div class="card credit"><strong>Mentor</strong><small>Mohd. Amaan</small></div>
+  <div class="card credit"><strong>Mentor</strong><small>Parth Dhola</small></div>
+</div>
+</div>
+</section>
 
 <section>
 <div class="container">
-    <div class="section-label">Project Guidance</div>
-    <h2>Research, implementation &amp; guidance.</h2>
-    <p class="section-intro">
-        The project is presented as a research-oriented implementation, with the
-        architecture, reasoning, experiments and code placed before the final demonstration.
-    </p>
-
-    <div class="identity-grid">
-        <div class="identity-card">
-            <div>
-                <div class="identity-label">Faculty Advisor</div>
-                <div class="identity-name">Prof. Prithwijit Guha</div>
-                <div class="identity-sub">Faculty Advisor · Research Project</div>
-            </div>
-            <div class="identity-label">Academic / Project Supervision</div>
-        </div>
-
-        <div class="identity-card">
-            <div class="identity-list">
-                <div>
-                    <div class="identity-label">Assigned Mentor</div>
-                    <div class="identity-name">Assigned Mentor</div>
-                </div>
-                <div>
-                    <div class="identity-label">Additional Guidance</div>
-                    <div class="identity-name">Amaan Irfan Sir</div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="section-head"><div><div class="kicker">02 · Targets</div><h2>Five levels of classification.</h2></div></div>
+<div class="targets">
+  <div class="target"><div class="num">01</div><h3>Production</h3><p>studio-produced · field-report · archive-footage</p></div>
+  <div class="target"><div class="num">02</div><h3>Source Type</h3><p>mainstream media · independent creator · citizen journalism</p></div>
+  <div class="target"><div class="num">03</div><h3>Primary Language</h3><p>English · Hindi · Bengali</p></div>
+  <div class="target"><div class="num">04</div><h3>Geography</h3><p>India-national · global · South Asia-regional · Bangladesh</p></div>
+  <div class="target"><div class="num">05</div><h3>Content Format</h3><p>13 annotated formats from debate to explainer and bulletin</p></div>
+</div>
 </div>
 </section>
 
-<!-- TARGETS -->
-<section>
+<section id="method">
 <div class="container">
-    <div class="section-label">Problem Definition</div>
-    <h2>Five dimensions of a news video.</h2>
-    <p class="section-intro">
-        Instead of assigning a single label, the project investigates five
-        independent target attributes.
-    </p>
-
-    <div class="targets">
-        <div class="card target"><div class="target-no">01</div><h3>Production</h3><p>Production characteristics of the news content.</p></div>
-        <div class="card target"><div class="target-no">02</div><h3>Source Type</h3><p>Nature and type of the news source.</p></div>
-        <div class="card target"><div class="target-no">03</div><h3>Language</h3><p>Primary language associated with the video.</p></div>
-        <div class="card target"><div class="target-no">04</div><h3>Geography</h3><p>Geographical context represented by the content.</p></div>
-        <div class="card target"><div class="target-no">05</div><h3>Content Format</h3><p>Format or presentation style of the news content.</p></div>
-    </div>
+<div class="section-head"><div><div class="kicker">03 · Architecture</div><h2>Two pipelines. One research question.</h2></div></div>
+<div class="split">
+  <div class="card">
+    <div class="tag">Experimental baseline</div>
+    <h3>Metadata pipeline</h3>
+    <p><b>Input:</b> YouTube URL → YouTube Data API v3 → title, description, tags and related textual metadata → TF-IDF representation → classifier comparison.</p>
+    <div style="margin-top:15px"><span class="pill">YouTube API</span><span class="pill">TF-IDF</span><span class="pill">Logistic Regression</span><span class="pill">Linear SVM</span><span class="pill">Naive Bayes</span><span class="pill">Random Forest</span><span class="pill">Decision Tree</span></div>
+  </div>
+  <div class="card">
+    <div class="tag">Main / final visual pipeline</div>
+    <h3>Visual pipeline</h3>
+    <p><b>Input:</b> local MP4 → shot segmentation → representative middle keyframes → pretrained visual backbone → mean-pooled video representation → one Random Forest classifier per target.</p>
+    <div style="margin-top:15px"><span class="pill">Bhattacharyya distance</span><span class="pill">Keyframes</span><span class="pill">DINOv2-Small</span><span class="pill">MobileNetV3-Small</span><span class="pill">Random Forest</span></div>
+  </div>
+</div>
+<div class="arch" style="margin-top:20px">
+  <div class="flow">
+    <div class="node">Local MP4<br><small>146 usable videos</small></div><div class="arrow">→</div>
+    <div class="node">Shot<br>Segmentation</div><div class="arrow">→</div>
+    <div class="node">Middle<br>Keyframes</div><div class="arrow">→</div>
+    <div class="node">DINOv2<br>384-D</div><div class="arrow">→</div>
+    <div class="node">Mean Pooling<br>per video</div><div class="arrow">→</div>
+    <div class="node">5 × Random<br>Forest</div>
+  </div>
+</div>
+<div class="grid2" style="margin-top:18px">
+  <div class="card">
+    <h3>Shot segmentation</h3>
+    <p>Frames are sampled with a configurable skip interval and compared through color-histogram distributions. A threshold is used to identify likely shot boundaries.</p>
+    <div class="formula">D<sub>B</sub>(P,Q) = √(1 − Σ<sub>i</sub> √(P<sub>i</sub>Q<sub>i</sub>))</div>
+    <p style="font-size:.82rem">Project configuration: 16 histogram bins · frame skip 28 · threshold 0.5.</p>
+  </div>
+  <div class="card">
+    <h3>Representative-frame strategy</h3>
+    <p>For each detected shot, the pipeline selects the middle frame rather than treating every video frame as an independent sample.</p>
+    <div class="formula">k<sub>shot</sub> = ⌊(f<sub>start</sub> + f<sub>end</sub>) / 2⌋</div>
+    <p style="font-size:.82rem">The resulting keyframes are encoded and mean-pooled into one fixed-size representation per video.</p>
+  </div>
+</div>
 </div>
 </section>
 
-<!-- 02 ARCHITECTURE -->
-<section id="architecture">
-<div class="container">
-    <div class="section-label">02 · Architecture</div>
-    <h2>Two paths. One research direction.</h2>
-    <p class="section-intro">
-        The project deliberately maintains two separate pipelines because their
-        inputs and processing workflows are different. The metadata branch is an
-        experimental baseline, while the local-video visual branch is the main approach.
-    </p>
-
-    <div class="arch-shell">
-        <div class="arch-input">NEWS VIDEO DATA</div>
-        <div class="arch-connector"></div>
-
-        <div class="arch-branches">
-            <div class="arch-branch main">
-                <div class="arch-head">
-                    <div>
-                        <div class="badge">Main / Final</div>
-                        <h3>Visual Pipeline</h3>
-                    </div>
-                    <span style="color:var(--cyan)">01</span>
-                </div>
-                <div class="arch-step"><div class="arch-dot">1</div>Local MP4 videos</div>
-                <div class="arch-step"><div class="arch-dot">2</div>Shot segmentation</div>
-                <div class="arch-step"><div class="arch-dot">3</div>Representative keyframes</div>
-                <div class="arch-step"><div class="arch-dot">4</div>DINOv2-Small feature extraction</div>
-                <div class="arch-step"><div class="arch-dot">5</div>384-dimensional visual representation</div>
-                <div class="arch-step"><div class="arch-dot">6</div>Five separate classifiers</div>
-            </div>
-
-            <div class="arch-branch exp">
-                <div class="arch-head">
-                    <div>
-                        <div class="badge">Experimental / Baseline</div>
-                        <h3>Metadata Pipeline</h3>
-                    </div>
-                    <span style="color:var(--violet)">02</span>
-                </div>
-                <div class="arch-step"><div class="arch-dot">1</div>YouTube video URL</div>
-                <div class="arch-step"><div class="arch-dot">2</div>YouTube Data API v3</div>
-                <div class="arch-step"><div class="arch-dot">3</div>Metadata extraction</div>
-                <div class="arch-step"><div class="arch-dot">4</div>Text preprocessing</div>
-                <div class="arch-step"><div class="arch-dot">5</div>TF-IDF feature extraction</div>
-                <div class="arch-step"><div class="arch-dot">6</div>Classical ML classification</div>
-            </div>
-        </div>
-
-        <div class="arch-output">Five target attributes → Production · Source Type · Language · Geography · Content Format</div>
-        <div class="arch-future">Future research direction: <span>metadata + visual + audio + OCR</span> multimodal understanding</div>
-    </div>
-</div>
-</section>
-
-<!-- LOGIC -->
-<section id="logic">
-<div class="container">
-    <div class="section-label">Core Logic</div>
-    <h2>The ideas behind the implementation.</h2>
-    <p class="section-intro">
-        The project combines classical text representation with pretrained visual
-        representations. The equations below summarize the core mathematical ideas
-        used by the experimental and visual workflows.
-    </p>
-
-    <div class="logic-grid">
-        <div class="card logic-card">
-            <div class="logic-tag">Metadata · TF-IDF</div>
-            <h3>Text feature weighting</h3>
-            <p>
-                TF-IDF represents the importance of a term in a document relative
-                to how frequently that term occurs across the dataset.
-            </p>
-            <div class="formula">TF-IDF(t,d) = TF(t,d) × IDF(t)</div>
-        </div>
-
-        <div class="card logic-card">
-            <div class="logic-tag">Visual · Shot Segmentation</div>
-            <h3>Histogram-based frame comparison</h3>
-            <p>
-                Consecutive sampled frames are compared through their visual
-                distributions to identify transitions between shots.
-            </p>
-            <div class="formula">D<sub>B</sub>(p,q) = √(1 − Σ<sub>i</sub> √(p<sub>i</sub>q<sub>i</sub>))</div>
-        </div>
-
-        <div class="card logic-card">
-            <div class="logic-tag">Visual · DINOv2</div>
-            <h3>Pretrained visual representation</h3>
-            <p>
-                Each representative keyframe is passed through DINOv2-Small to
-                obtain a compact 384-dimensional visual representation.
-            </p>
-            <div class="logic-flow">
-                <div class="mini-box">Keyframe</div><div class="mini-arrow">→</div>
-                <div class="mini-box">DINOv2-Small</div><div class="mini-arrow">→</div>
-                <div class="mini-box">384-D</div>
-            </div>
-        </div>
-
-        <div class="card logic-card">
-            <div class="logic-tag">Classification</div>
-            <h3>Independent target prediction</h3>
-            <p>
-                The visual workflow trains separate classifiers for the five
-                target attributes rather than collapsing them into one label.
-            </p>
-            <div class="logic-flow">
-                <div class="mini-box">Video representation</div><div class="mini-arrow">→</div>
-                <div class="mini-box">5 classifiers</div><div class="mini-arrow">→</div>
-                <div class="mini-box">5 predictions</div>
-            </div>
-        </div>
-    </div>
-</div>
-</section>
-
-<!-- DATASET -->
 <section id="dataset">
 <div class="container">
-    <div class="section-label">03 · Dataset</div>
-    <h2>The annotation sheet behind the experiments.</h2>
-    <p class="section-intro">
-        The project uses a manually annotated collection of news videos. The
-        annotation workbook provides the structured labels and source information
-        used during dataset preparation. The raw workbook is kept outside the
-        public repository rather than committing the full dataset to GitHub.
-    </p>
-
-    <div class="dataset-layout">
-        <div class="dataset-stats">
-            <div class="dataset-stat"><div class="dataset-value">~150</div><div class="dataset-label">Annotated videos</div></div>
-            <div class="dataset-stat"><div class="dataset-value">146</div><div class="dataset-label">Available video clips</div></div>
-            <div class="dataset-stat"><div class="dataset-value">5</div><div class="dataset-label">Target attributes</div></div>
-            <div class="dataset-stat"><div class="dataset-value">16</div><div class="dataset-label">Metadata fields</div></div>
-        </div>
-
-        <div class="sheet">
-            <div class="sheet-top">
-                <div class="sheet-title">NewsVideoDataset.xlsx · Annotation Preview</div>
-                <div class="sheet-note">structured labels</div>
-            </div>
-            <table class="sheet-table">
-                <thead>
-                    <tr><th>Video / Source</th><th>Production</th><th>Source Type</th><th>Language</th><th>Geography</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td>Video record</td><td>Label</td><td>Label</td><td>Label</td><td>Label</td></tr>
-                    <tr><td>Video record</td><td>Label</td><td>Label</td><td>Label</td><td>Label</td></tr>
-                    <tr><td>Video record</td><td>Label</td><td>Label</td><td>Label</td><td>Label</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+<div class="section-head"><div><div class="kicker">04 · Dataset</div><h2>150 annotated news videos.</h2><p class="lead">The supplied annotation workbook contains 150 unique video IDs and five categorical target columns. Four videos did not produce visual master-feature records, leaving 146 videos for the visual modelling stage.</p></div></div>
+<div class="grid2">
+  <div class="card chart-card">
+    <div class="chart-title"><h3>Source Type</h3><span class="legend">n = 150</span></div>
+    <div class="bar-row"><div class="bar-label">Mainstream media</div><div class="bar"><div class="fill" style="width:100%"></div></div><div class="bar-value">112</div></div>
+    <div class="bar-row"><div class="bar-label">Independent creator</div><div class="bar"><div class="fill" style="width:28.6%"></div></div><div class="bar-value">32</div></div>
+    <div class="bar-row"><div class="bar-label">Citizen journalism</div><div class="bar"><div class="fill" style="width:5.4%"></div></div><div class="bar-value">6</div></div>
+  </div>
+  <div class="card chart-card">
+    <div class="chart-title"><h3>Primary Language</h3><span class="legend">n = 150</span></div>
+    <div class="bar-row"><div class="bar-label">English</div><div class="bar"><div class="fill" style="width:100%"></div></div><div class="bar-value">104</div></div>
+    <div class="bar-row"><div class="bar-label">Hindi</div><div class="bar"><div class="fill" style="width:41.3%"></div></div><div class="bar-value">43</div></div>
+    <div class="bar-row"><div class="bar-label">Bengali</div><div class="bar"><div class="fill" style="width:2.9%"></div></div><div class="bar-value">3</div></div>
+  </div>
+  <div class="card chart-card">
+    <div class="chart-title"><h3>Geography</h3><span class="legend">n = 150</span></div>
+    <div class="bar-row"><div class="bar-label">India — National</div><div class="bar"><div class="fill" style="width:100%"></div></div><div class="bar-value">76</div></div>
+    <div class="bar-row"><div class="bar-label">Global</div><div class="bar"><div class="fill" style="width:81.6%"></div></div><div class="bar-value">62</div></div>
+    <div class="bar-row"><div class="bar-label">South Asia — Regional</div><div class="bar"><div class="fill" style="width:10.5%"></div></div><div class="bar-value">8</div></div>
+    <div class="bar-row"><div class="bar-label">Bangladesh</div><div class="bar"><div class="fill" style="width:5.3%"></div></div><div class="bar-value">4</div></div>
+  </div>
+  <div class="card chart-card">
+    <div class="chart-title"><h3>Production</h3><span class="legend">n = 150</span></div>
+    <div class="bar-row"><div class="bar-label">Studio produced</div><div class="bar"><div class="fill" style="width:100%"></div></div><div class="bar-value">95</div></div>
+    <div class="bar-row"><div class="bar-label">Field report</div><div class="bar"><div class="fill" style="width:42.1%"></div></div><div class="bar-value">40</div></div>
+    <div class="bar-row"><div class="bar-label">Archive footage</div><div class="bar"><div class="fill" style="width:15.8%"></div></div><div class="bar-value">15</div></div>
+  </div>
+</div>
+<div class="card chart-card" style="margin-top:18px">
+  <div class="chart-title"><h3>Content Format — the most granular target</h3><span class="legend">13 classes · n = 150</span></div>
+  <div class="bar-row"><div class="bar-label">Explainer</div><div class="bar"><div class="fill" style="width:100%"></div></div><div class="bar-value">26</div></div>
+  <div class="bar-row"><div class="bar-label">News bulletin</div><div class="bar"><div class="fill" style="width:96.2%"></div></div><div class="bar-value">25</div></div>
+  <div class="bar-row"><div class="bar-label">Interview</div><div class="bar"><div class="fill" style="width:61.5%"></div></div><div class="bar-value">16</div></div>
+  <div class="bar-row"><div class="bar-label">Press conference</div><div class="bar"><div class="fill" style="width:50%"></div></div><div class="bar-value">13</div></div>
+  <div class="bar-row"><div class="bar-label">Breaking news</div><div class="bar"><div class="fill" style="width:50%"></div></div><div class="bar-value">13</div></div>
+  <div class="bar-row"><div class="bar-label">Fact check</div><div class="bar"><div class="fill" style="width:46.2%"></div></div><div class="bar-value">12</div></div>
+  <div class="bar-row"><div class="bar-label">Analysis</div><div class="bar"><div class="fill" style="width:42.3%"></div></div><div class="bar-value">11</div></div>
+  <div class="bar-row"><div class="bar-label">Panel discussion</div><div class="bar"><div class="fill" style="width:34.6%"></div></div><div class="bar-value">9</div></div>
+  <div class="bar-row"><div class="bar-label">Documentary</div><div class="bar"><div class="fill" style="width:34.6%"></div></div><div class="bar-value">9</div></div>
+  <div class="bar-row"><div class="bar-label">Debate</div><div class="bar"><div class="fill" style="width:23.1%"></div></div><div class="bar-value">6</div></div>
+  <div class="bar-row"><div class="bar-label">Podcast clip</div><div class="bar"><div class="fill" style="width:23.1%"></div></div><div class="bar-value">6</div></div>
+  <div class="bar-row"><div class="bar-label">Reaction video</div><div class="bar"><div class="fill" style="width:7.7%"></div></div><div class="bar-value">2</div></div>
+  <div class="bar-row"><div class="bar-label">Vlog</div><div class="bar"><div class="fill" style="width:7.7%"></div></div><div class="bar-value">2</div></div>
+</div>
 </div>
 </section>
 
-<!-- METHODOLOGY -->
-<section id="methodology">
+<section id="math">
 <div class="container">
-    <div class="section-label">04 · Methodology</div>
-    <h2>From raw input to prediction.</h2>
-    <p class="section-intro">
-        The two approaches remain independent in implementation, but both are
-        evaluated as parts of the broader research question.
-    </p>
-
-    <div class="pipeline-grid">
-        <div class="pipeline main">
-            <div class="pipeline-title">
-                <div><div class="badge">Main / Final Pipeline</div><h3>Visual Classification</h3></div>
-            </div>
-            <p class="pipeline-description">
-                Takes locally stored MP4 videos and extracts visual information
-                through representative keyframes and DINOv2-Small.
-            </p>
-            <div class="steps">
-                <div class="step"><b>01</b>Local MP4 video</div>
-                <div class="step"><b>02</b>Shot segmentation</div>
-                <div class="step"><b>03</b>Representative keyframes</div>
-                <div class="step"><b>04</b>DINOv2-Small · 384-D features</div>
-                <div class="step"><b>05</b>Video-level feature dataset</div>
-                <div class="step"><b>06</b>Five independent classifiers</div>
-                <div class="step"><b>07</b>Inference on previously unseen videos</div>
-            </div>
-        </div>
-
-        <div class="pipeline experimental">
-            <div class="pipeline-title">
-                <div><div class="badge">Experimental / Baseline</div><h3>Metadata Classification</h3></div>
-            </div>
-            <p class="pipeline-description">
-                Takes YouTube URLs directly, extracts metadata through the
-                YouTube Data API, and investigates TF-IDF-based classical ML.
-            </p>
-            <div class="steps">
-                <div class="step"><b>01</b>YouTube video URL</div>
-                <div class="step"><b>02</b>YouTube Data API v3</div>
-                <div class="step"><b>03</b>Metadata extraction</div>
-                <div class="step"><b>04</b>Text preprocessing</div>
-                <div class="step"><b>05</b>TF-IDF representation</div>
-                <div class="step"><b>06</b>Classical ML models</div>
-                <div class="step"><b>07</b>Baseline evaluation</div>
-            </div>
-        </div>
-    </div>
+<div class="section-head"><div><div class="kicker">05 · Mathematical Foundations</div><h2>From text weighting to visual similarity.</h2></div></div>
+<div class="grid2">
+  <div class="card">
+    <h3>TF-IDF — metadata baseline</h3>
+    <p>For a term <i>t</i> in document <i>d</i>, the metadata pipeline uses term frequency and inverse document frequency to weight informative tokens.</p>
+    <div class="formula">TF-IDF(t,d) = TF(t,d) × log(N / DF(t))</div>
+    <p>Frequent terms within one video receive more weight, while terms occurring across many videos become less discriminative.</p>
+  </div>
+  <div class="card">
+    <h3>Bhattacharyya distance — shot boundaries</h3>
+    <p>Color-histogram distributions from sampled frames are compared to identify visual changes that may correspond to shot transitions.</p>
+    <div class="formula">D<sub>B</sub>(P,Q) = √(1 − BC(P,Q))<br>BC(P,Q) = Σ<sub>i</sub> √(P<sub>i</sub>Q<sub>i</sub>)</div>
+  </div>
+  <div class="card">
+    <h3>Video-level representation</h3>
+    <p>DINOv2 maps each representative keyframe into a 384-dimensional vector. The frame-level vectors are mean-pooled to obtain a fixed representation for the video.</p>
+    <div class="formula">z<sub>video</sub> = (1/K) Σ<sub>k=1</sub><sup>K</sup> z<sub>k</sub>, &nbsp; z<sub>k</sub> ∈ ℝ<sup>384</sup></div>
+  </div>
+  <div class="card">
+    <h3>Evaluation metrics</h3>
+    <p>For each target, the models are evaluated with accuracy plus weighted precision, recall and F1.</p>
+    <div class="formula">Precision = TP/(TP+FP)<br>Recall = TP/(TP+FN)<br>F1 = 2PR/(P+R)</div>
+  </div>
+</div>
 </div>
 </section>
 
-<!-- IMPLEMENTATION -->
-<section id="implementation">
+<section>
 <div class="container">
-    <div class="section-label">05 · Implementation</div>
-    <h2>Architecture first. Code second.</h2>
-    <p class="section-intro">
-        The repository contains the complete notebooks used for the two approaches.
-        The snippets below highlight the central implementation logic; the full
-        workflows remain available in the notebooks.
-    </p>
+<div class="section-head"><div><div class="kicker">06 · Implementation</div><h2>Core logic, kept reproducible.</h2></div></div>
+<div class="grid2">
+  <div class="card">
+    <h3>Keyframe selection</h3>
+    <div class="code"><code># middle frame of every detected shot
+boundaries = [0] + segment_frames + [total_frames - 1]
 
-    <div class="code-grid">
-        <div class="card code-card">
-            <div class="code-head">
-                <div><div class="code-label">Visual pipeline</div><h3>Project configuration</h3></div>
-                <span style="color:var(--cyan)">Python</span>
-            </div>
-<pre><span class="code-key">BASE_PATH</span> = <span class="code-name">"/content/drive/MyDrive/News Video Classification"</span>
-
-<span class="code-key">VIDEO_DIR</span> = os.path.join(
-    BASE_PATH, <span class="code-name">"Downloaded_Videos"</span>
+keyframe_indices = []
+for i in range(len(boundaries) - 1):
+    start = boundaries[i]
+    end = boundaries[i + 1]
+    middle = (start + end) // 2
+    keyframe_indices.append(middle)</code></div>
+  </div>
+  <div class="card">
+    <h3>Video representation</h3>
+    <div class="code"><code># one fixed-size representation per video
+dino_feature = aggregate_video_features(
+    dinov2,
+    keyframe_folder
 )
 
-<span class="code-key">KEYFRAMES_DIR</span> = os.path.join(
-    BASE_PATH, <span class="code-name">"Keyframes"</span>
+# output:
+# (384,)</code></div>
+  </div>
+  <div class="card">
+    <h3>Independent target classifiers</h3>
+    <div class="code"><code>targets = [
+    "Production",
+    "Source_Type",
+    "Primary_Language",
+    "Geography",
+    "Content_Format"
+]
+
+for target in targets:
+    clf = RandomForestClassifier(
+        n_estimators=200,
+        random_state=42
+    )
+    clf.fit(X_train, y_train)</code></div>
+  </div>
+  <div class="card">
+    <h3>Cross-validation</h3>
+    <div class="code"><code>StratifiedKFold(
+    n_splits=2,
+    shuffle=True,
+    random_state=42
 )
 
-<span class="code-key">FEATURES_DIR</span> = os.path.join(
-    BASE_PATH, <span class="code-name">"Features"</span>
-)
-
-<span class="code-key">DINO_DIR</span> = os.path.join(
-    FEATURES_DIR, <span class="code-name">"DINOv2"</span>
-)</pre>
-        </div>
-
-        <div class="card code-card">
-            <div class="code-head">
-                <div><div class="code-label">Metadata pipeline</div><h3>Text classification logic</h3></div>
-                <span style="color:var(--violet)">Python</span>
-            </div>
-<pre><span class="code-comment"># Text representation</span>
-vectorizer = TfidfVectorizer(...)
-
-X_train = vectorizer.fit_transform(
-    train_text
-)
-
-X_test = vectorizer.transform(
-    test_text
-)
-
-<span class="code-comment"># Classical classifier</span>
-model = LogisticRegression(...)
-model.fit(X_train, y_train)
-
-predictions = model.predict(X_test)</pre>
-        </div>
-    </div>
-
-    <div style="margin-top:22px;display:flex;flex-wrap:wrap;gap:11px">
-        <a class="button primary" href="https://colab.research.google.com/github/chan1425/multi-level-news-video-classification/blob/main/visual_pipeline.ipynb" target="_blank">Open Visual Notebook ↗</a>
-        <a class="button" href="https://colab.research.google.com/github/chan1425/multi-level-news-video-classification/blob/main/metadata_pipeline.ipynb" target="_blank">Open Metadata Notebook ↗</a>
-    </div>
+# Accuracy
+# weighted Precision
+# weighted Recall
+# weighted F1</code></div>
+  </div>
+</div>
 </div>
 </section>
 
-<!-- RESULTS -->
 <section id="results">
 <div class="container">
-    <div class="section-label">06 · Experiments &amp; Results</div>
-    <h2>What the experiments showed.</h2>
-    <p class="section-intro">
-        The metadata branch served as an initial proof of concept, while the
-        visual branch was developed into the main implemented workflow.
-    </p>
-
-    <div class="result-top">
-        <div class="metric"><div class="metric-value">~150</div><div class="metric-label">Annotated videos</div></div>
-        <div class="metric"><div class="metric-value">146</div><div class="metric-label">Available video clips</div></div>
-        <div class="metric"><div class="metric-value">384</div><div class="metric-label">DINOv2 feature dimensions</div></div>
-        <div class="metric"><div class="metric-value">5</div><div class="metric-label">Separate visual classifiers</div></div>
-    </div>
-
-    <div class="card" style="margin-bottom:18px">
-        <div class="section-label" style="margin-bottom:8px">Backbone comparison</div>
-        <h3>Visual representation efficiency</h3>
-        <div class="table-wrap" style="margin-top:18px">
-            <table class="result-table">
-                <thead><tr><th>Visual Backbone</th><th>Parameters</th><th>GFLOPs</th><th>Feature Dimension</th><th>Inference Time</th></tr></thead>
-                <tbody>
-                    <tr class="chosen"><td>DINOv2-Small</td><td>22.06M</td><td>5.53</td><td>384</td><td>9.93 ms/image</td></tr>
-                    <tr><td>MobileNetV3-Small</td><td>0.93M</td><td>0.06</td><td>576</td><td>5.10 ms/image</td></tr>
-                </tbody>
-            </table>
-        </div>
-        <p style="font-size:12px;margin-top:17px">
-            DINOv2-Small was selected as the final visual backbone because it
-            provided a richer pretrained visual representation for the project's
-            semantic video-understanding task, while MobileNetV3-Small provided
-            a lighter and faster alternative.
-        </p>
-    </div>
-
-    <div class="pipeline-grid">
-        <div class="card">
-            <div class="section-label">Metadata baseline</div>
-            <h3>Initial geography experiment</h3>
-            <p style="font-size:13px">
-                TF-IDF with Logistic Regression achieved <strong style="color:#eaf7ff">60% test accuracy</strong>,
-                with a <strong style="color:#eaf7ff">0.44 macro F1-score</strong> and
-                <strong style="color:#eaf7ff">0.53 weighted F1-score</strong>.
-            </p>
-        </div>
-        <div class="card">
-            <div class="section-label">Experimental observation</div>
-            <h3>Class imbalance mattered</h3>
-            <p style="font-size:13px">
-                The metadata experiments showed that severe class imbalance made
-                fine-grained metadata-only classification difficult, especially
-                for less represented categories.
-            </p>
-        </div>
-    </div>
+<div class="section-head"><div><div class="kicker">07 · Experiments & Results</div><h2>The visual backbone comparison.</h2><p class="lead">Both backbones use the same representative keyframe set. The evaluation output stored in the notebook reports 2-fold stratified cross-validation for all five targets.</p></div></div>
+<div class="metric-grid">
+  <div class="metric"><strong>22.06M</strong><span>DINOv2 parameters</span></div>
+  <div class="metric"><strong>0.93M</strong><span>MobileNetV3 parameters</span></div>
+  <div class="metric"><strong>384-D</strong><span>DINOv2 video feature</span></div>
+  <div class="metric"><strong>576-D</strong><span>MobileNetV3 feature</span></div>
+</div>
+<div class="card" style="margin-top:18px;overflow:auto">
+<table class="compare">
+<thead><tr><th>Backbone</th><th>Target</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead>
+<tbody>
+<tr><td>DINOv2</td><td>Production</td><td>70.55%</td><td>67.12%</td><td>70.55%</td><td>63.53%</td></tr>
+<tr><td>DINOv2</td><td>Source Type</td><td>76.71%</td><td>78.84%</td><td>76.71%</td><td>68.31%</td></tr>
+<tr><td>DINOv2</td><td>Primary Language</td><td>76.71%</td><td>78.59%</td><td>76.71%</td><td>70.94%</td></tr>
+<tr><td>DINOv2</td><td>Geography</td><td>69.18%</td><td>64.19%</td><td>69.18%</td><td>66.15%</td></tr>
+<tr><td>DINOv2</td><td>Content Format</td><td>24.66%</td><td>24.58%</td><td>24.66%</td><td>20.43%</td></tr>
+<tr><td>MobileNetV3</td><td>Production</td><td>65.75%</td><td>59.67%</td><td>65.75%</td><td>55.05%</td></tr>
+<tr><td>MobileNetV3</td><td>Source Type</td><td>76.71%</td><td>75.03%</td><td>76.71%</td><td>69.99%</td></tr>
+<tr><td>MobileNetV3</td><td>Primary Language</td><td>76.03%</td><td>80.10%</td><td>76.03%</td><td>69.73%</td></tr>
+<tr><td>MobileNetV3</td><td>Geography</td><td>67.12%</td><td>61.74%</td><td>67.12%</td><td>64.16%</td></tr>
+<tr><td>MobileNetV3</td><td>Content Format</td><td>24.66%</td><td>18.23%</td><td>24.66%</td><td>18.62%</td></tr>
+</tbody>
+</table>
+</div>
+<div class="grid2" style="margin-top:18px">
+  <div class="card chart-card">
+    <div class="chart-title"><h3>Accuracy by target</h3><span class="legend">DINOv2 vs MobileNetV3</span></div>
+    <div class="bar-row"><div class="bar-label">Production · DINO</div><div class="bar"><div class="fill" style="width:70.55%"></div></div><div class="bar-value">70.6%</div></div>
+    <div class="bar-row"><div class="bar-label">Production · Mobile</div><div class="bar"><div class="fill" style="width:65.75%"></div></div><div class="bar-value">65.8%</div></div>
+    <div class="bar-row"><div class="bar-label">Source · DINO</div><div class="bar"><div class="fill" style="width:76.71%"></div></div><div class="bar-value">76.7%</div></div>
+    <div class="bar-row"><div class="bar-label">Source · Mobile</div><div class="bar"><div class="fill" style="width:76.71%"></div></div><div class="bar-value">76.7%</div></div>
+    <div class="bar-row"><div class="bar-label">Language · DINO</div><div class="bar"><div class="fill" style="width:76.71%"></div></div><div class="bar-value">76.7%</div></div>
+    <div class="bar-row"><div class="bar-label">Language · Mobile</div><div class="bar"><div class="fill" style="width:76.03%"></div></div><div class="bar-value">76.0%</div></div>
+    <div class="bar-row"><div class="bar-label">Geography · DINO</div><div class="bar"><div class="fill" style="width:69.18%"></div></div><div class="bar-value">69.2%</div></div>
+    <div class="bar-row"><div class="bar-label">Geography · Mobile</div><div class="bar"><div class="fill" style="width:67.12%"></div></div><div class="bar-value">67.1%</div></div>
+    <div class="bar-row"><div class="bar-label">Format · DINO</div><div class="bar"><div class="fill" style="width:24.66%"></div></div><div class="bar-value">24.7%</div></div>
+    <div class="bar-row"><div class="bar-label">Format · Mobile</div><div class="bar"><div class="fill" style="width:24.66%"></div></div><div class="bar-value">24.7%</div></div>
+  </div>
+  <div class="card chart-card">
+    <div class="chart-title"><h3>F1 by target</h3><span class="legend">weighted F1</span></div>
+    <div class="bar-row"><div class="bar-label">Production · DINO</div><div class="bar"><div class="fill" style="width:63.53%"></div></div><div class="bar-value">63.5%</div></div>
+    <div class="bar-row"><div class="bar-label">Production · Mobile</div><div class="bar"><div class="fill" style="width:55.05%"></div></div><div class="bar-value">55.1%</div></div>
+    <div class="bar-row"><div class="bar-label">Source · DINO</div><div class="bar"><div class="fill" style="width:68.31%"></div></div><div class="bar-value">68.3%</div></div>
+    <div class="bar-row"><div class="bar-label">Source · Mobile</div><div class="bar"><div class="fill" style="width:69.99%"></div></div><div class="bar-value">70.0%</div></div>
+    <div class="bar-row"><div class="bar-label">Language · DINO</div><div class="bar"><div class="fill" style="width:70.94%"></div></div><div class="bar-value">70.9%</div></div>
+    <div class="bar-row"><div class="bar-label">Language · Mobile</div><div class="bar"><div class="fill" style="width:69.73%"></div></div><div class="bar-value">69.7%</div></div>
+    <div class="bar-row"><div class="bar-label">Geography · DINO</div><div class="bar"><div class="fill" style="width:66.15%"></div></div><div class="bar-value">66.2%</div></div>
+    <div class="bar-row"><div class="bar-label">Geography · Mobile</div><div class="bar"><div class="fill" style="width:64.16%"></div></div><div class="bar-value">64.2%</div></div>
+    <div class="bar-row"><div class="bar-label">Format · DINO</div><div class="bar"><div class="fill" style="width:20.43%"></div></div><div class="bar-value">20.4%</div></div>
+    <div class="bar-row"><div class="bar-label">Format · Mobile</div><div class="bar"><div class="fill" style="width:18.62%"></div></div><div class="bar-value">18.6%</div></div>
+  </div>
+</div>
+<div class="card" style="margin-top:18px">
+  <h3>Backbone efficiency</h3>
+  <table class="compare">
+    <tr><th></th><th>DINOv2-Small</th><th>MobileNetV3-Small</th></tr>
+    <tr><td>Parameters</td><td>22.06 M</td><td>0.93 M</td></tr>
+    <tr><td>GFLOPs</td><td>5.53</td><td>0.06</td></tr>
+    <tr><td>Feature dimension</td><td>384</td><td>576</td></tr>
+    <tr><td>Inference time</td><td>6.58 ms/image</td><td>4.95 ms/image</td></tr>
+  </table>
+  <div class="note warning" style="margin-top:15px"><b>Interpretation:</b> MobileNetV3 is substantially lighter and slightly faster. DINOv2 was retained as the main visual representation because it gives stronger results on Production, Primary Language and Geography, while Source Type is very close and Content Format remains difficult for both backbones.</div>
+</div>
 </div>
 </section>
 
-<!-- DEMO -->
-<section id="demo">
+<section>
 <div class="container">
-    <div class="section-label">07 · Project Presentation</div>
-    <h2>See the project in action.</h2>
-    <p class="section-intro">
-        The recorded presentation will explain the objective, dataset, architecture,
-        logic, implementation, experiments, results, limitations and future direction.
-    </p>
-
-    <div class="video-box">
-        <div class="video-frame">
-            <!--
-            AFTER uploading the presentation to YouTube/Vimeo:
-            Replace this placeholder with the appropriate iframe.
-
-            YouTube example:
-            <iframe width="100%" height="100%"
-                src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
-                title="Multi-Level News Video Classification Presentation"
-                frameborder="0"
-                allowfullscreen></iframe>
-            -->
-            <div class="video-placeholder">
-                <div class="play">▶</div>
-                <strong>Project Presentation Video</strong>
-                <p>Replace this placeholder with the YouTube/Vimeo embed after uploading the recording.</p>
-            </div>
-        </div>
-        <div class="video-note">
-            Presentation coverage: introduction · architecture · dataset · methodology · implementation · results · demonstration · limitations · future work
-        </div>
-    </div>
+<div class="section-head"><div><div class="kicker">08 · Metadata Baseline</div><h2>A useful baseline — and a useful limitation.</h2></div></div>
+<div class="metric-grid">
+  <div class="metric"><strong>60%</strong><span>Test accuracy</span></div>
+  <div class="metric"><strong>0.44</strong><span>Macro F1</span></div>
+  <div class="metric"><strong>0.53</strong><span>Weighted F1</span></div>
+  <div class="metric"><strong>58%</strong><span>Cross-validation accuracy</span></div>
+</div>
+<div class="grid2" style="margin-top:18px">
+  <div class="card">
+    <h3>What the baseline established</h3>
+    <p>The metadata experiment demonstrated that title/description/tags and related textual signals can provide useful coarse-grained classification cues. Geography was used as a key early target because class imbalance made the limitations visible.</p>
+  </div>
+  <div class="card">
+    <h3>Why it did not replace the visual pipeline</h3>
+    <p>Metadata is dependent on what a platform exposes and what a publisher writes. It cannot directly observe visual production style, scene composition or visual structure. The visual pipeline therefore became the main/final approach.</p>
+  </div>
+</div>
 </div>
 </section>
 
-<!-- LIMITATIONS -->
-<section id="limitations">
+<section>
 <div class="container">
-    <div class="section-label">08 · Limitations</div>
-    <h2>What the current system does not yet capture.</h2>
-    <p class="section-intro">
-        The current implementation is intentionally scoped around the available
-        visual and metadata signals. Several modalities remain outside the final pipeline.
-    </p>
-
-    <div class="limit-grid">
-        <div class="limit-item"><div class="item-index">01</div><h3>Audio</h3><p>Audio and speech transcripts are not integrated into the current visual pipeline.</p></div>
-        <div class="limit-item"><div class="item-index">02</div><h3>OCR</h3><p>On-screen text extraction has not yet been incorporated into the current system.</p></div>
-        <div class="limit-item"><div class="item-index">03</div><h3>Class imbalance</h3><p>Minority classes remain challenging because some categories have limited examples.</p></div>
-        <div class="limit-item"><div class="item-index">04</div><h3>Visual-only signals</h3><p>Some attributes, especially language, may not be reliably inferred from frames alone.</p></div>
-        <div class="limit-item"><div class="item-index">05</div><h3>Dataset scale</h3><p>The current dataset is relatively small for a broad multi-attribute video classification problem.</p></div>
-        <div class="limit-item"><div class="item-index">06</div><h3>Separate pipelines</h3><p>The metadata and visual approaches are not yet fused into a single multimodal model.</p></div>
+<div class="section-head"><div><div class="kicker">09 · End-to-End Demonstration</div><h2>From an unseen MP4 to five predictions.</h2></div></div>
+<div class="card">
+  <div class="demo" id="demo">
+    <div class="demo-inner">
+      <div class="play">▶</div>
+      <h3>Presentation video will be embedded here</h3>
+      <p>After the screen-recorded presentation is uploaded to YouTube or Vimeo, replace the single <code>VIDEO_EMBED_URL</code> placeholder in this file with the embed URL.</p>
+      <div class="pill">Shot segmentation</div><div class="pill">Keyframe extraction</div><div class="pill">DINOv2</div><div class="pill">5 predictions</div>
     </div>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="card">
+      <h3>Recorded inference example</h3>
+      <p>The executed notebook demonstrates an unseen video passing through segmentation, representative keyframe extraction, DINOv2 feature extraction and the saved target-specific classifiers.</p>
+    </div>
+    <div class="card">
+      <h3>Example output</h3>
+      <p><b>Production:</b> studio produced · <b>Source:</b> mainstream media · <b>Language:</b> English · <b>Geography:</b> Global · <b>Format:</b> Explainer.</p>
+    </div>
+  </div>
+</div>
 </div>
 </section>
 
-<!-- FUTURE -->
-<section id="future">
+<section>
 <div class="container">
-    <div class="section-label">09 · Future Work</div>
-    <h2>Towards multimodal news understanding.</h2>
-    <p class="section-intro">
-        The current pipelines provide complementary sources of information.
-        Future work can investigate additional modalities and stronger evaluation.
-    </p>
-
-    <div class="future-grid">
-        <div class="future-item"><div class="item-index">01</div><h3>Audio &amp; transcription</h3><p>Audio-based language identification and speech transcription.</p></div>
-        <div class="future-item"><div class="item-index">02</div><h3>OCR</h3><p>Extraction of on-screen news text and visual textual cues.</p></div>
-        <div class="future-item"><div class="item-index">03</div><h3>Multimodal fusion</h3><p>Combining metadata, visual and audio information.</p></div>
-        <div class="future-item"><div class="item-index">04</div><h3>Larger datasets</h3><p>Larger and more balanced collections across target classes.</p></div>
-        <div class="future-item"><div class="item-index">05</div><h3>Better minority-class handling</h3><p>Improved strategies for under-represented categories.</p></div>
-        <div class="future-item"><div class="item-index">06</div><h3>Explainability</h3><p>Confidence estimation and interpretable model outputs.</p></div>
-    </div>
+<div class="section-head"><div><div class="kicker">10 · Workflow</div><h2>Development path.</h2></div></div>
+<div class="card timeline">
+  <div class="step"><b>01–06</b><div><h3>Problem framing & annotation</h3><p>Defined the five target dimensions, collected candidate news videos and established an annotation scheme.</p></div></div>
+  <div class="step"><b>07–15</b><div><h3>Metadata proof of concept</h3><p>Built the YouTube metadata pipeline, expanded the dataset, tested TF-IDF classifiers and documented class-imbalance limitations.</p></div></div>
+  <div class="step"><b>16–20</b><div><h3>Visual preprocessing & backbone study</h3><p>Moved to local MP4 clips, implemented shot segmentation and representative keyframes, then compared DINOv2-Small with MobileNetV3-Small.</p></div></div>
+  <div class="step"><b>21–23</b><div><h3>Visual modelling</h3><p>Built master feature datasets and trained separate classifiers for all five target levels using stratified cross-validation.</p></div></div>
+  <div class="step"><b>24–27</b><div><h3>Inference, validation & documentation</h3><p>Connected saved models to unseen-video inference, tested multiple unseen videos, recorded the demonstration and documented limitations.</p></div></div>
+</div>
 </div>
 </section>
 
-<!-- REPOSITORY -->
-<section id="repository">
+<section>
 <div class="container">
-    <div class="section-label">10 · Repository</div>
-    <h2>Everything needed to reproduce the work.</h2>
-    <p class="section-intro">
-        The public repository keeps the project page and the two implementation
-        notebooks together, while large datasets and model artifacts remain outside GitHub.
-    </p>
-
-    <div class="repo-grid">
-        <div class="card">
-            <div class="section-label">Project structure</div>
-            <div class="tree">
-                <div><span class="folder">multi-level-news-video-classification/</span></div>
-                <div>├── <span class="folder">assets/</span></div>
-                <div>├── <span class="folder">docs/</span></div>
-                <div>├── <span class="folder">results/</span></div>
-                <div>├── <span class="file">index.html</span></div>
-                <div>├── <span class="file">metadata_pipeline.ipynb</span></div>
-                <div>└── <span class="file">visual_pipeline.ipynb</span></div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="section-label">Project artifacts</div>
-            <div class="artifact-links">
-                <a class="artifact" href="https://github.com/chan1425/multi-level-news-video-classification" target="_blank"><span>GitHub Repository</span><span>↗</span></a>
-                <a class="artifact" href="https://colab.research.google.com/github/chan1425/multi-level-news-video-classification/blob/main/visual_pipeline.ipynb" target="_blank"><span>Visual Pipeline Notebook</span><span>↗</span></a>
-                <a class="artifact" href="https://colab.research.google.com/github/chan1425/multi-level-news-video-classification/blob/main/metadata_pipeline.ipynb" target="_blank"><span>Metadata Pipeline Notebook</span><span>↗</span></a>
-            </div>
-        </div>
-    </div>
+<div class="section-head"><div><div class="kicker">11 · Setup & Usage</div><h2>Reproduce the experiments.</h2></div></div>
+<div class="grid2">
+  <div class="card">
+    <h3>Visual pipeline</h3>
+    <p>Open the Colab notebook, mount Google Drive, point the project configuration to the <code>News Video Classification</code> folder, ensure the required MP4 clips/features are available, and run the preprocessing/model cells.</p>
+    <div class="actions"><a class="btn primary" href="https://colab.research.google.com/github/chan1425/multi-level-news-video-classification/blob/main/visual_pipeline.ipynb" target="_blank">Open Visual Colab ↗</a></div>
+  </div>
+  <div class="card">
+    <h3>Metadata pipeline</h3>
+    <p>Open the metadata notebook and provide the YouTube Data API key through the notebook's secret mechanism. The pipeline extracts YouTube information, constructs TF-IDF features and evaluates baseline classifiers.</p>
+    <div class="actions"><a class="btn primary" href="https://colab.research.google.com/github/chan1425/multi-level-news-video-classification/blob/main/metadata_pipeline.ipynb" target="_blank">Open Metadata Colab ↗</a></div>
+  </div>
+</div>
+<div class="note" style="margin-top:18px"><b>Data handling:</b> large videos, datasets, feature stores and model artifacts should remain in Drive/cloud storage rather than being committed directly to GitHub.</div>
 </div>
 </section>
+
+<section>
+<div class="container">
+<div class="section-head"><div><div class="kicker">12 · Repository</div><h2>A compact research repository.</h2></div></div>
+<div class="structure">
+  <div class="tree">multi-level-news-video-classification/
+├── assets/
+├── docs/
+├── results/
+├── index.html
+├── metadata_pipeline.ipynb
+└── visual_pipeline.ipynb</div>
+  <div class="card">
+    <h3>Repository map</h3>
+    <p><b>index.html</b> — this research showcase.</p>
+    <p><b>visual_pipeline.ipynb</b> — preprocessing, backbone comparison, visual feature extraction, model evaluation and unseen-video inference.</p>
+    <p><b>metadata_pipeline.ipynb</b> — YouTube metadata extraction, TF-IDF baseline and classifier experiments.</p>
+    <p><b>assets/ · docs/ · results/</b> — supporting materials and result artifacts intended for the repository.</p>
+  </div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="container">
+<div class="section-head"><div><div class="kicker">13 · Limitations & Future Work</div><h2>What comes next?</h2></div></div>
+<div class="grid3">
+  <div class="card"><h3>Class imbalance</h3><p>Rare categories — especially within the 13-class Content Format target — make classification substantially harder and motivate better sampling and imbalance-aware learning.</p></div>
+  <div class="card"><h3>Audio & speech</h3><p>Primary Language is difficult to infer visually when language is conveyed mainly through speech. Audio-based language identification and transcription are natural next steps.</p></div>
+  <div class="card"><h3>Multimodal fusion</h3><p>A future system could combine metadata, visual features, audio, OCR and on-screen text rather than using the two present pipelines independently.</p></div>
+  <div class="card"><h3>Larger dataset</h3><p>More videos and more balanced coverage would make the evaluation more robust and reduce sensitivity to minority classes.</p></div>
+  <div class="card"><h3>Explainability</h3><p>Confidence estimation and interpretable evidence could help show why a video was assigned a particular target label.</p></div>
+  <div class="card"><h3>Deployment</h3><p>An optional web-based interface could expose the end-to-end inference pipeline without changing the underlying research architecture.</p></div>
+</div>
+</div>
+</section>
+
+<section id="resources">
+<div class="container">
+<div class="section-head"><div><div class="kicker">14 · Resources & Credits</div><h2>Explore the work.</h2></div></div>
+<div class="grid3">
+  <div class="card"><h3>GitHub Repository</h3><p>Source notebooks, webpage and supporting project files.</p><div class="actions"><a class="btn" href="https://github.com/chan1425/multi-level-news-video-classification" target="_blank">Open GitHub ↗</a></div></div>
+  <div class="card"><h3>Project Documentation</h3><p>Detailed working notes, development history and research documentation.</p><div class="actions"><a class="btn" href="https://app.notion.com/p/Multi-Level-Classification-of-News-Videos-3853b3ac9999800a9ba9e86b68a75f4e" target="_blank">Open Notion ↗</a></div></div>
+  <div class="card"><h3>Author</h3><p><b>Anwesha Choudhury</b><br>Research Internship Project<br>Faculty Advisor: Prof. Prithwijit Guha<br>Mentors: Mohd. Amaan · Parth Dhola</p></div>
+</div>
+<div class="card" style="margin-top:18px">
+  <h3>License</h3>
+  <p>License information was not specified in the supplied project materials. Add the repository's chosen license here once finalized.</p>
+</div>
+</div>
+</section>
+</main>
 
 <footer>
-<div class="container footer-inner">
-    <div>Multi-Level News Video Classification · Research Internship Project · 2026</div>
-    <div>Built for project demonstration &amp; technical documentation</div>
+<div class="container footerline">
+  <div>© 2026 Anwesha Choudhury · Multi-Level News Video Classification</div>
+  <a href="#top">Back to top ↑</a>
 </div>
 </footer>
 
