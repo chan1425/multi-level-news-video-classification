@@ -56,7 +56,8 @@ code{font-family:"SFMono-Regular",Consolas,monospace;color:#dce4ff}.code{backgro
 .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{padding:20px;border:1px solid var(--line);border-radius:17px;background:#0c111d}.metric strong{font-size:1.8rem;display:block}.metric span{color:var(--muted);font-size:.8rem}
 .note{border-left:3px solid var(--accent);padding:14px 18px;background:#0c111d;color:#bac4d9;border-radius:0 12px 12px 0}
 .warning{border-left-color:var(--warm)}
-.demo{aspect-ratio:16/9;border:1px solid #303b57;border-radius:20px;background:repeating-linear-gradient(45deg,#0b101b,#0b101b 10px,#0e1421 10px,#0e1421 20px);display:flex;align-items:center;justify-content:center;text-align:center;padding:30px}
+.demo{aspect-ratio:16/9;border:1px solid #303b57;border-radius:20px;background:#080c15;overflow:hidden}
+.demo iframe{display:block;width:100%;height:100%;border:0}
 .demo-inner{max-width:550px}.play{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:#f1f4ff;color:#0a0d15;margin:0 auto 18px;font-size:1.3rem}
 .structure{display:grid;grid-template-columns:1fr 1fr;gap:18px}.tree{font-family:Consolas,monospace;color:#cdd6e9;background:#080c15;border:1px solid var(--line);padding:22px;border-radius:17px;white-space:pre;overflow:auto}
 footer{padding:55px 0;color:var(--muted)}.footerline{display:flex;justify-content:space-between;gap:20px;align-items:center}
@@ -382,7 +383,7 @@ for target in targets:
     <tr><td>Parameters</td><td>22.06 M</td><td>0.93 M</td></tr>
     <tr><td>GFLOPs</td><td>5.53</td><td>0.06</td></tr>
     <tr><td>Feature dimension</td><td>384</td><td>576</td></tr>
-    <tr><td>Inference time</td><td>6.58 ms/image</td><td>4.95 ms/image</td></tr>
+    <tr><td>Inference time</td><td>7.23 ms/image</td><td>5.16 ms/image</td></tr>
   </table>
   <div class="note warning" style="margin-top:15px"><b>Interpretation:</b> MobileNetV3 is substantially lighter and slightly faster. DINOv2 was retained as the main visual representation because it gives stronger results on Production, Primary Language and Geography, while Source Type is very close and Content Format remains difficult for both backbones.</div>
 </div>
@@ -416,12 +417,13 @@ for target in targets:
 <div class="section-head"><div><div class="kicker">09 · End-to-End Demonstration</div><h2>From an unseen MP4 to five predictions.</h2></div></div>
 <div class="card">
   <div class="demo" id="demo">
-    <div class="demo-inner">
-      <div class="play">▶</div>
-      <h3>Presentation video will be embedded here</h3>
-      <p>After the screen-recorded presentation is uploaded to YouTube or Vimeo, replace the single <code>VIDEO_EMBED_URL</code> placeholder in this file with the embed URL.</p>
-      <div class="pill">Shot segmentation</div><div class="pill">Keyframe extraction</div><div class="pill">DINOv2</div><div class="pill">5 predictions</div>
-    </div>
+    <iframe
+      src="https://www.youtube-nocookie.com/embed/T0C9AHzoJUg"
+      title="Metadata-Assisted Multi-Label Classification of News Videos — Research Internship Project"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen>
+    </iframe>
   </div>
   <div class="grid2" style="margin-top:18px">
     <div class="card">
@@ -478,14 +480,18 @@ for target in targets:
 ├── docs/
 ├── results/
 ├── index.html
-├── metadata_pipeline.ipynb
-└── visual_pipeline.ipynb</div>
+├── notebooks/
+│   ├── metadata_pipeline.ipynb
+│   └── visual_pipeline.ipynb
+└── src/
+    └── video_segmentor.py</div>
   <div class="card">
     <h3>Repository map</h3>
     <p><b>index.html</b> — this research showcase.</p>
-    <p><b>visual_pipeline.ipynb</b> — preprocessing, backbone comparison, visual feature extraction, model evaluation and unseen-video inference.</p>
-    <p><b>metadata_pipeline.ipynb</b> — YouTube metadata extraction, TF-IDF baseline and classifier experiments.</p>
-    <p><b>assets/ · docs/ · results/</b> — supporting materials and result artifacts intended for the repository.</p>
+    <p><b>notebooks/visual_pipeline.ipynb</b> — preprocessing, backbone comparison, visual feature extraction, model evaluation and unseen-video inference.</p>
+    <p><b>notebooks/metadata_pipeline.ipynb</b> — YouTube metadata extraction, TF-IDF baseline and classifier experiments.</p>
+    <p><b>src/video_segmentor.py</b> — reusable shot-segmentation implementation.</p>
+    <p><b>assets/ · docs/ · results/ · data/</b> — supporting materials, documentation, results and annotations.</p>
   </div>
 </div>
 </div>
