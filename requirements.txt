@@ -1,0 +1,13 @@
+numpy
+pandas
+openpyxl
+scikit-learn
+matplotlib
+seaborn
+opencv-python
+Pillow
+torch
+torchvision
+fvcore
+requests
+google-api-python-client
